@@ -6,6 +6,8 @@
 <title>불안 기록 저널</title>
 <!-- Supabase JS Client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- SheetJS (xlsx) for Excel Export -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -180,6 +182,39 @@
   .btn-primary:hover { background: #a06040; }
   .btn-primary:active { opacity: 0.85; }
   
+  .btn-action-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .btn-excel {
+    flex: 1;
+    background: #217346;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-excel:hover { background: #1a5c37; }
+
+  .btn-copy {
+    flex: 1;
+    background: #8a7a6c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-copy:hover { background: #77685b; }
+
   .btn-refresh {
     background: #e8dfd5;
     color: #5b4636;
@@ -330,6 +365,11 @@
       <button class="btn-refresh" onclick="fetchEntries()">🔄 동기화</button>
       <span class="db-status-badge">🟢 Supabase DB 실시간 연결됨</span>
     </div>
+  </div>
+
+  <div class="btn-action-row">
+    <button class="btn-excel" onclick="exportToExcel()">📊 엑셀 다운로드 (.xlsx)</button>
+    <button class="btn-copy" onclick="exportToText()">📋 텍스트 복사</button>
   </div>
   
   <div id="entryList"></div>
@@ -502,6 +542,74 @@ async function saveEntry() {
   intensityVal.textContent = 5;
 
   fetchEntries();
+}
+
+// Export to Excel (.xlsx)
+function exportToExcel() {
+  if (!entries.length) {
+    alert('내보낼 기록이 없어');
+    return;
+  }
+  
+  if (!window.XLSX) {
+    alert('엑셀 내보내기 라이브러리를 로드 중이야. 잠시 후 다시 시도해줘.');
+    return;
+  }
+
+  const excelData = entries.map((e, index) => ({
+    '번호': entries.length - index,
+    '날짜': e.date,
+    '불안 강도 (1~10)': e.intensity,
+    '어떤 상황이었어?': e.situation,
+    '무슨 생각이 들었어?': e.thought,
+    '어떻게 반응했어?': e.action,
+    '확인(안심 요청) 여부': e.confirmed,
+    '확인 후 결과': e.result
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "불안 기록 저널");
+
+  // Auto column widths
+  worksheet['!cols'] = [
+    { wch: 6 },  // 번호
+    { wch: 22 }, // 날짜
+    { wch: 14 }, // 불안 강도
+    { wch: 30 }, // 상황
+    { wch: 30 }, // 생각
+    { wch: 20 }, // 반응
+    { wch: 18 }, // 확인 여부
+    { wch: 30 }  // 결과
+  ];
+
+  const dateStr = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(workbook, `불안_기록_저널_${dateStr}.xlsx`);
+}
+
+// Export to Text Copy
+function exportToText() {
+  if (!entries.length) {
+    alert('아직 기록된 항목이 없어');
+    return;
+  }
+  const text = entries.map(e =>
+    `[${e.date}] 강도 ${e.intensity}\n상황: ${e.situation}\n생각: ${e.thought}\n반응: ${e.action}\n확인 요청: ${e.confirmed}\n결과: ${e.result}\n`
+  ).join('\n---\n');
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    alert('전체 기록이 클립보드에 복사됐어! 메모장에 붙여넣기 해줘.');
+  } catch (e) {
+    alert('복사에 실패했어: \n\n' + text);
+  }
+  document.body.removeChild(textarea);
 }
 
 initAuth();
