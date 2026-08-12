@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Reading Log - 교보문고 독서 기록장 (Claude Beige Edition)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Claude Warm Beige Palette */
+      --bg-main: #FBF9F5;
+      --bg-surface: #FFFFFF;
+      --bg-card: #F7F4EE;
+      --bg-card-hover: #F2EDE4;
+      --bg-header: rgba(251, 249, 245, 0.9);
+      --bg-modal: #FDFCF9;
+      --border-color: #E8E2D9;
+      --border-hover: #D8D0C4;
+      --border-glow: rgba(204, 120, 92, 0.35);
+      
+      --text-main: #231F20;
+      --text-muted: #6E6A66;
+      --text-dim: #9E9893;
+      
+      /* Claude Terracotta Accent */
+      --claude-orange: #CC785C;
+      --claude-orange-hover: #B8654B;
+      --claude-orange-soft: rgba(204, 120, 92, 0.12);
+      
+      /* Status Colors */
+      --status-completed-bg: #EAF4EE;
+      --status-completed-text: #2D7A52;
+      --status-reading-bg: #F9EFEA;
+      --status-reading-text: #CC785C;
+      --status-wishlist-bg: #F6F0E6;
+      --status-wishlist-text: #B47828;
+
+      --shadow-soft: 0 4px 20px -2px rgba(60, 40, 20, 0.05), 0 2px 6px -1px rgba(60, 40, 20, 0.03);
+      --shadow-modal: 0 20px 40px -10px rgba(45, 30, 15, 0.15), 0 0 2px rgba(45, 30, 15, 0.1);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Serif Display Headings for Claude Aesthetic */
+    .serif-title {
+      font-family: 'Newsreader', Georgia, serif;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-main);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D8D0C4;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C4BBAE;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg-header);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.1rem 2.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--claude-orange);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(204, 120, 92, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .brand-tag {
+      font-size: 0.72rem;
+      background: var(--claude-orange-soft);
+      color: var(--claude-orange);
+      border: 1px solid rgba(204, 120, 92, 0.3);
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--claude-orange);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(204, 120, 92, 0.25);
+    }
+    .btn-primary:hover {
+      background: var(--claude-orange-hover);
+      box-shadow: 0 4px 14px rgba(204, 120, 92, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border-color: var(--border-color);
+      box-shadow: var(--shadow-soft);
+    }
+    .btn-secondary:hover {
+      background: #F4EFE6;
+      border-color: var(--border-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--claude-orange);
+      border-color: rgba(204, 120, 92, 0.4);
+    }
+    .btn-outline:hover {
+      background: var(--claude-orange-soft);
+    }
+
+    .btn-danger {
+      background: #FDF2F2;
+      color: #DE350B;
+      border-color: #F8D7D7;
+    }
+    .btn-danger:hover {
+      background: #FCE8E8;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 1.75rem 2.2rem 3rem 2.2rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Stats Banner Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.15rem 1.35rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      background: var(--claude-orange-soft);
+      color: var(--claude-orange);
+    }
+
+    .stat-info .stat-val {
+      font-size: 1.55rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
+    .stat-info .stat-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.35rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .month-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      min-width: 140px;
+      text-align: center;
+      color: var(--text-main);
+    }
+
+    .nav-btn {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover {
+      background: var(--claude-orange-soft);
+      border-color: rgba(204, 120, 92, 0.4);
+      color: var(--claude-orange);
+    }
+
+    .view-tabs {
+      display: flex;
+      background: var(--bg-main);
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      padding: 0.45rem 1.05rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--claude-orange);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Views */
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: block;
+    }
+
+    /* Calendar Grid Layout */
+    .calendar-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .calendar-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.8rem;
+    }
+    .calendar-header div:first-child { color: #D9534F; } /* Sun */
+    .calendar-header div:last-child { color: #337AB7; } /* Sat */
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-auto-rows: minmax(135px, auto);
+      gap: 0.55rem;
+    }
+
+    .calendar-day {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      min-height: 135px;
+      transition: border-color 0.2s, background-color 0.2s;
+      position: relative;
+    }
+    .calendar-day:hover {
+      border-color: rgba(204, 120, 92, 0.4);
+      background: var(--bg-card-hover);
+    }
+
+    .calendar-day.other-month {
+      opacity: 0.38;
+      background: rgba(247, 244, 238, 0.4);
+    }
+
+    .calendar-day.today {
+      border-color: var(--claude-orange);
+      box-shadow: inset 0 0 0 1px var(--claude-orange);
+      background: #FFFDF9;
+    }
+
+    .day-num-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .calendar-day.today .day-num {
+      background: var(--claude-orange);
+      color: #FFFFFF;
+    }
+    .calendar-day:nth-child(7n+1) .day-num { color: #D9534F; }
+    .calendar-day:nth-child(7n) .day-num { color: #337AB7; }
+
+    .quick-add-btn {
+      opacity: 0;
+      background: var(--claude-orange-soft);
+      border: none;
+      color: var(--claude-orange);
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: opacity 0.2s;
+    }
+    .calendar-day:hover .quick-add-btn {
+      opacity: 1;
+    }
+
+    /* Book Badge in Calendar Cell */
+    .book-badge {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--claude-orange);
+      border-radius: 6px;
+      padding: 0.35rem 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .book-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(60, 40, 20, 0.12);
+      border-color: rgba(204, 120, 92, 0.4);
+      z-index: 10;
+    }
+
+    .book-badge-thumb {
+      width: 26px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 3px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+      background: #E8E2D9;
+    }
+
+    .book-badge-info {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .book-badge-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+
+    .book-badge-author {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Grid List View */
+    .grid-view-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.35rem;
+    }
+
+    .book-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .book-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(204, 120, 92, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(60, 40, 20, 0.08);
+    }
+
+    .book-card-cover-wrapper {
+      height: 190px;
+      background: #F4EFE6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-card-cover {
+      height: 155px;
+      width: 108px;
+      object-fit: cover;
+      border-radius: 6px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s;
+    }
+    .book-card:hover .book-card-cover {
+      transform: scale(1.04);
+    }
+
+    .book-card-body {
+      padding: 1.2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .book-card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .book-card-author {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .book-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: auto;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .badge-status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.18rem 0.55rem;
+      border-radius: 12px;
+    }
+    .status-completed { background: var(--status-completed-bg); color: var(--status-completed-text); }
+    .status-reading { background: var(--status-reading-bg); color: var(--status-reading-text); }
+    .status-wishlist { background: var(--status-wishlist-bg); color: var(--status-wishlist-text); }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(35, 31, 32, 0.45);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      padding: 1.5rem;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--bg-modal);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-modal);
+      padding: 1.85rem;
+      position: relative;
+      transform: translateY(15px);
+      transition: transform 0.25s ease;
+    }
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close-btn:hover {
+      background: #FDF2F2;
+      color: #DE350B;
+    }
+
+    .modal-header-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 1.35rem;
+    }
+
+    /* Form controls */
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.9rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--claude-orange);
+      box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.15);
+    }
+    .form-textarea {
+      resize: vertical;
+      min-height: 85px;
+    }
+
+    .input-with-btn {
+      display: flex;
+      gap: 0.55rem;
+    }
+
+    /* Book preview inside modal */
+    .book-fetch-preview {
+      background: var(--bg-card);
+      border: 1px dashed rgba(204, 120, 92, 0.4);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.15rem;
+      align-items: center;
+    }
+    .preview-cover {
+      width: 70px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background: #E8E2D9;
+      flex-shrink: 0;
+    }
+    .preview-info {
+      flex: 1;
+    }
+    .preview-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+    .preview-author {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Rating Stars */
+    .star-rating {
+      display: flex;
+      gap: 0.3rem;
+      font-size: 1.4rem;
+      color: #D8D0C4;
+      cursor: pointer;
+    }
+    .star-rating .star {
+      transition: color 0.15s;
+    }
+    .star-rating .star.active {
+      color: var(--claude-orange);
+    }
+
+    /* Test Drawer Panel */
+    .test-drawer {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      margin-top: 2.2rem;
+      box-shadow: var(--shadow-soft);
+    }
+    .test-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .test-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.825rem;
+      margin-top: 1rem;
+    }
+    .test-table th, .test-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+    .test-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--bg-card);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      header { padding: 1rem; flex-direction: column; align-items: stretch; }
+      .container { padding: 1rem; }
+      .controls-bar { flex-direction: column; align-items: stretch; }
+      .calendar-grid { grid-auto-rows: minmax(105px, auto); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="brand">
+      <div class="brand-icon serif-title">🪶</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:0.55rem;">
+          <span class="brand-title serif-title">Claude Reading Log</span>
+          <span class="brand-tag">Warm Beige Edition</span>
+        </div>
+        <div style="font-size: 0.73rem; color: var(--text-muted);">교보문고 독서 서재 & 서정적 달력 기록장</div>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <span>+</span> 새 독서 기록 추가
+      </button>
+      <button class="btn btn-secondary" onclick="openTestModal()">
+        🧪 20개 도서 자동 검증
+      </button>
+      <button class="btn btn-outline" onclick="exportData()">
+        💾 백업 다운로드
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    
+    <!-- Top Stats Bar -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-info">
+          <div class="stat-val serif-title" id="stat-total">0</div>
+          <div class="stat-lbl">총 등록 도서</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="color:#2D7A52; background:#EAF4EE;">🕯️</div>
+        <div class="stat-info">
+          <div class="stat-val serif-title" id="stat-completed">0</div>
+          <div class="stat-lbl">완독 도서 수</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="color:#B47828; background:#F6F0E6;">⭐</div>
+        <div class="stat-info">
+          <div class="stat-val serif-title" id="stat-rating">0.0</div>
+          <div class="stat-lbl">평균 독서 평점</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="color:#CC785C; background:#F9EFEA;">📅</div>
+        <div class="stat-info">
+          <div class="stat-val serif-title" id="stat-month-count">0</div>
+          <div class="stat-lbl">이달의 독서 기록</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls & View Mode Bar -->
+    <div class="controls-bar">
+      <div class="calendar-nav">
+        <button class="nav-btn" onclick="changeMonth(-1)" title="이전 달">◀</button>
+        <span class="month-title serif-title" id="current-month-display">2026년 8월</span>
+        <button class="nav-btn" onclick="changeMonth(1)" title="다음 달">▶</button>
+        <button class="btn btn-secondary" style="padding: 0.3rem 0.75rem; font-size:0.8rem;" onclick="goToday()">오늘</button>
+      </div>
+
+      <div class="view-tabs">
+        <button class="tab-btn active" id="tab-calendar" onclick="switchView('calendar')">📅 달력 뷰</button>
+        <button class="tab-btn" id="tab-grid" onclick="switchView('grid')">⣿ 서재 목록</button>
+      </div>
+    </div>
+
+    <!-- CALENDAR VIEW SECTION -->
+    <div id="view-calendar" class="view-section active">
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+          <!-- Calendar Days rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID VIEW SECTION -->
+    <div id="view-grid" class="view-section">
+      <div class="grid-view-container" id="grid-cards-container">
+        <!-- Book Cards rendered by JS -->
+      </div>
+    </div>
+
+    <!-- 20 BOOKS AUTO TEST SECTION -->
+    <div class="test-drawer">
+      <div class="test-drawer-header">
+        <div>
+          <h3 class="serif-title" style="font-size:1.15rem; color:var(--text-main);">🧪 교보문고 20개 도서 파싱 자동 검증 패널</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted);">요구사항 #5: 20개 교보문고 도서 링크를 https://r.jina.ai를 통해 실시간으로 읽어와 정확한 표지/제목/저자를 추출하는지 검증합니다.</p>
+        </div>
+        <button class="btn btn-primary" id="start-test-btn" onclick="runAutoTest20()">
+          ⚡ 20개 도서 일괄 검증 시작
+        </button>
+      </div>
+
+      <div id="test-progress-bar" style="display:none; height:6px; background:#E8E2D9; border-radius:3px; overflow:hidden; margin-bottom:1rem;">
+        <div id="test-progress-fill" style="width:0%; height:100%; background:var(--claude-orange); transition:width 0.3s;"></div>
+      </div>
+
+      <div style="max-height: 300px; overflow-y: auto;">
+        <table class="test-table">
+          <thead>
+            <tr>
+              <th style="width:50px;">#</th>
+              <th>교보문고 URL</th>
+              <th>추출된 도서 제목</th>
+              <th>저자</th>
+              <th>표지 이미지</th>
+              <th style="width:80px;">상태</th>
+            </tr>
+          </thead>
+          <tbody id="test-results-body">
+            <tr>
+              <td colspan="6" style="text-align:center; color:var(--text-dim); padding:1.5rem;">
+                상단의 '20개 도서 일괄 검증 시작' 버튼을 눌러 테스트를 수행하세요.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ADD / EDIT BOOK MODAL -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="closeModal('add-modal')">✕</button>
+      <h3 class="modal-header-title serif-title" id="modal-form-title">📖 새 독서 기록 추가</h3>
+
+      <!-- Step 1: URL Fetch -->
+      <div class="form-group">
+        <label class="form-label">교보문고 책 링크 (https://product.kyobobook.co.kr/detail/...)</label>
+        <div class="input-with-btn">
+          <input type="text" class="form-input" id="input-url" placeholder="https://product.kyobobook.co.kr/detail/S000001290641">
+          <button class="btn btn-primary" style="white-space:nowrap;" onclick="fetchBookInfoFromInput()">
+            ⚡ 정보 불러오기
+          </button>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.35rem;">
+          💡 Jina AI (https://r.jina.ai/)를 통해 교보문고 상세페이지를 파싱합니다.
+        </div>
+      </div>
+
+      <!-- Quick Link Presets -->
+      <div style="margin-bottom: 1.15rem; display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center;">
+        <span style="font-size:0.75rem; color:var(--text-muted);">추천 예시 링크:</span>
+        <button class="btn btn-outline" style="padding:0.18rem 0.55rem; font-size:0.75rem;" onclick="setPresetUrl('https://product.kyobobook.co.kr/detail/S000001290641')">욕망의 진화 (데이비드 버스)</button>
+        <button class="btn btn-outline" style="padding:0.18rem 0.55rem; font-size:0.75rem;" onclick="setPresetUrl('https://product.kyobobook.co.kr/detail/S000216798759')">이영도 (눈물을 마시는 새)</button>
+        <button class="btn btn-outline" style="padding:0.18rem 0.55rem; font-size:0.75rem;" onclick="setPresetUrl('https://product.kyobobook.co.kr/detail/S000220308313')">초역 부처의 말</button>
+      </div>
+
+      <!-- Preview Box -->
+      <div class="book-fetch-preview" id="book-preview-box" style="display:none;">
+        <img src="" class="preview-cover" id="preview-img" alt="Cover">
+        <div class="preview-info">
+          <div class="preview-title serif-title" id="preview-title">도서 제목</div>
+          <div class="preview-author" id="preview-author">저자명</div>
+          <div style="font-size:0.75rem; color:var(--claude-orange); margin-top:0.4rem;" id="preview-status-text">✓ 정확한 도서 정보 파싱 완료</div>
+        </div>
+      </div>
+
+      <!-- Step 2: Book Info Fields -->
+      <form id="book-form" onsubmit="saveBookForm(event)">
+        <input type="hidden" id="edit-book-id" value="">
+        <input type="hidden" id="input-cover" value="">
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+          <div class="form-group">
+            <label class="form-label">도서 제목</label>
+            <input type="text" class="form-input" id="input-title" required placeholder="도서 제목 입력">
+          </div>
+          <div class="form-group">
+            <label class="form-label">저자</label>
+            <input type="text" class="form-input" id="input-author" required placeholder="저자명 입력">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+          <div class="form-group">
+            <label class="form-label">독서 시작일</label>
+            <input type="date" class="form-input" id="input-start-date" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">독서 종료일</label>
+            <input type="date" class="form-input" id="input-end-date" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+          <div class="form-group">
+            <label class="form-label">독서 상태</label>
+            <select class="form-select" id="input-status">
+              <option value="completed">완독 (Completed)</option>
+              <option value="reading">읽는 중 (Reading)</option>
+              <option value="wishlist">읽고 싶은 책 (Wishlist)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">내 평점</label>
+            <div class="star-rating" id="star-picker">
+              <span class="star active" onclick="setRating(1)">★</span>
+              <span class="star active" onclick="setRating(2)">★</span>
+              <span class="star active" onclick="setRating(3)">★</span>
+              <span class="star active" onclick="setRating(4)">★</span>
+              <span class="star active" onclick="setRating(5)">★</span>
+            </div>
+            <input type="hidden" id="input-rating" value="5">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">독서 메모 & 인상 깊은 구절</label>
+          <textarea class="form-textarea" id="input-memo" placeholder="이 책을 읽고 느낀 점이나 간직하고 싶은 구절을 기록하세요..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('add-modal')">취소</button>
+          <button type="submit" class="btn btn-primary">저장하기</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- BOOK DETAIL VIEW MODAL -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="closeModal('detail-modal')">✕</button>
+      
+      <div style="display:flex; gap:1.35rem; margin-bottom:1.5rem;">
+        <img src="" id="detail-img" style="width:115px; height:165px; object-fit:cover; border-radius:8px; box-shadow:0 6px 16px rgba(0,0,0,0.12);" alt="Cover">
+        <div style="flex:1;">
+          <span class="badge-status status-completed" id="detail-status-badge">완독</span>
+          <h2 class="serif-title" style="font-size:1.45rem; color:var(--text-main); margin-top:0.45rem; line-height:1.25;" id="detail-title">제목</h2>
+          <div style="font-size:0.9rem; color:var(--text-muted); margin-top:0.35rem;" id="detail-author">저자</div>
+          
+          <div style="margin-top:0.9rem; font-size:0.85rem; color:var(--text-main);">
+            <div>📅 <strong>독서 기간:</strong> <span id="detail-period">2026.08.01 ~ 2026.08.08</span> (<span id="detail-days">8</span>일간)</div>
+            <div style="margin-top:0.25rem;">⭐ <strong>별점:</strong> <span id="detail-stars" style="color:var(--claude-orange);">★★★★★</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1.1rem; margin-bottom:1.35rem;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.45rem;">📝 독서 메모</div>
+        <div style="font-size:0.92rem; color:var(--text-main); white-space:pre-wrap; font-family:'Newsreader', serif;" id="detail-memo">메모 내용이 없습니다.</div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <a href="#" target="_blank" class="btn btn-outline" id="detail-link-btn">
+          교보문고에서 보기 ↗
+        </a>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-secondary" onclick="editCurrentBook()">수정</button>
+          <button class="btn btn-danger" onclick="deleteCurrentBook()">삭제</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // App State
+    let books = [];
+    let currentDate = new Date(2026, 7, 1); // August 2026
+    let currentView = 'calendar';
+    let currentDetailBookId = null;
+
+    // 20 Sample Test URLs (Including 욕망의 진화)
+    const test20BookUrls = [
+      "https://product.kyobobook.co.kr/detail/S000001290641", // 욕망의 진화 (데이비드 버스)
+      "https://product.kyobobook.co.kr/detail/S000216798759", // 이영도 (눈물을 마시는 새)
+      "https://product.kyobobook.co.kr/detail/S000220308313", // 초역 부처의 말
+      "https://product.kyobobook.co.kr/detail/S000216292200", // 오디세이아
+      "https://product.kyobobook.co.kr/detail/S000220515357",
+      "https://product.kyobobook.co.kr/detail/S000220694725",
+      "https://product.kyobobook.co.kr/detail/S000000620195",
+      "https://product.kyobobook.co.kr/detail/S000211748790",
+      "https://product.kyobobook.co.kr/detail/S000218278239",
+      "https://product.kyobobook.co.kr/detail/S000220637951",
+      "https://product.kyobobook.co.kr/detail/S000220119415",
+      "https://product.kyobobook.co.kr/detail/S000220307771",
+      "https://product.kyobobook.co.kr/detail/S000220340903",
+      "https://product.kyobobook.co.kr/detail/S000220587963",
+      "https://product.kyobobook.co.kr/detail/S000220340900",
+      "https://product.kyobobook.co.kr/detail/S000220623768",
+      "https://product.kyobobook.co.kr/detail/S000216298636",
+      "https://product.kyobobook.co.kr/detail/S000220429584",
+      "https://product.kyobobook.co.kr/detail/S000218791163",
+      "https://product.kyobobook.co.kr/detail/S000001632467"
+    ];
+
+    // Initial Default Seed Data
+    const initialSeedBooks = [
+      {
+        id: 'seed-desire',
+        title: '욕망의 진화',
+        author: '데이비드 버스 (전중환 옮김)',
+        coverImage: 'https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9788983712073.jpg',
+        url: 'https://product.kyobobook.co.kr/detail/S000001290641',
+        startDate: '2026-08-01',
+        endDate: '2026-08-07',
+        status: 'completed',
+        rating: 5,
+        memo: '인간 남녀의 성적 욕망과 짝짓기 전략의 진화적 근원을 다룬 명저.'
+      },
+      {
+        id: 'seed-1',
+        title: 'The Heart of the Nhaga (눈물을 마시는 새)',
+        author: '이영도 (Lee Young-Do)',
+        coverImage: 'https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9780008651114.jpg',
+        url: 'https://product.kyobobook.co.kr/detail/S000216798759',
+        startDate: '2026-08-08',
+        endDate: '2026-08-16',
+        status: 'reading',
+        rating: 5,
+        memo: '한국 판타지의 거장 이영도 작가의 걸작 영문판! 훌륭한 세계관과 독창적인 캐릭터.'
+      },
+      {
+        id: 'seed-2',
+        title: '초역 부처의 말',
+        author: '코이케 류노스케',
+        coverImage: 'https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9788934986478.jpg',
+        url: 'https://product.kyobobook.co.kr/detail/S000220308313',
+        startDate: '2026-08-18',
+        endDate: '2026-08-25',
+        status: 'reading',
+        rating: 4,
+        memo: '마음의 평정과 참된 지혜를 전해주는 부처의 지혜로운 말씀들.'
+      }
+    ];
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStorageData();
+      renderApp();
+    });
+
+    // Local Storage Management
+    function loadStorageData() {
+      const data = localStorage.getItem('kyobo_reading_logs_claude_v1');
+      if (data) {
+        try {
+          books = JSON.parse(data);
+        } catch (e) {
+          books = initialSeedBooks;
+        }
+      } else {
+        books = initialSeedBooks;
+        saveStorageData();
+      }
+    }
+
+    function saveStorageData() {
+      localStorage.setItem('kyobo_reading_logs_claude_v1', JSON.stringify(books));
+      renderStats();
+    }
+
+    // Render Master Function
+    function renderApp() {
+      renderStats();
+      renderCalendar();
+      renderGridCards();
+    }
+
+    // Render Stats
+    function renderStats() {
+      document.getElementById('stat-total').innerText = books.length;
+      const completed = books.filter(b => b.status === 'completed').length;
+      document.getElementById('stat-completed').innerText = completed;
+
+      const totalRating = books.reduce((acc, b) => acc + Number(b.rating || 0), 0);
+      const avgRating = books.length > 0 ? (totalRating / books.length).toFixed(1) : '0.0';
+      document.getElementById('stat-rating').innerText = avgRating;
+
+      // Current month count
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthBooks = books.filter(b => {
+        const d = new Date(b.startDate);
+        return d.getFullYear() === year && d.getMonth() === month;
+      });
+      document.getElementById('stat-month-count').innerText = monthBooks.length;
+    }
+
+    // Calendar Navigation
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+      renderStats();
+    }
+
+    function goToday() {
+      currentDate = new Date();
+      renderCalendar();
+      renderStats();
+    }
+
+    // Render Calendar
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      document.getElementById('current-month-display').innerText = `${year}년 ${month + 1}월`;
+
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      const startDayOfWeek = firstDay.getDay(); // 0 = Sun
+      const totalDays = lastDay.getDate();
+
+      const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+      const today = new Date();
+      const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+      // 1. Render Previous Month Overlap
+      for (let i = startDayOfWeek - 1; i >= 0; i--) {
+        const dayNum = prevMonthLastDay - i;
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day other-month';
+        dayDiv.innerHTML = `<div class="day-num-row"><span class="day-num">${dayNum}</span></div>`;
+        grid.appendChild(dayDiv);
+      }
+
+      // 2. Render Current Month Days
+      for (let d = 1; d <= totalDays; d++) {
+        const dayDiv = document.createElement('div');
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        
+        let isToday = isCurrentMonth && today.getDate() === d;
+        dayDiv.className = `calendar-day ${isToday ? 'today' : ''}`;
+
+        dayDiv.innerHTML = `
+          <div class="day-num-row">
+            <span class="day-num">${d}</span>
+            <button class="quick-add-btn" onclick="openAddModalWithDate('${dateStr}')" title="이 날짜에 기록 추가">+</button>
+          </div>
+          <div class="day-books-container" id="cell-${dateStr}"></div>
+        `;
+        grid.appendChild(dayDiv);
+
+        // Find books spanning this date
+        const container = dayDiv.querySelector(`.day-books-container`);
+        const matchingBooks = books.filter(b => isDateInRange(dateStr, b.startDate, b.endDate));
+
+        matchingBooks.forEach(b => {
+          const badge = document.createElement('div');
+          badge.className = 'book-badge';
+          badge.onclick = (e) => {
+            e.stopPropagation();
+            openDetailModal(b.id);
+          };
+
+          badge.innerHTML = `
+            <img src="${b.coverImage || 'https://via.placeholder.com/30x40'}" class="book-badge-thumb" alt="Cover" onerror="this.src='https://via.placeholder.com/30x40/e8e2d9/6e6a66?text=Book'">
+            <div class="book-badge-info">
+              <div class="book-badge-title">${escapeHtml(b.title)}</div>
+              <div class="book-badge-author">${escapeHtml(b.author)}</div>
+            </div>
+          `;
+          container.appendChild(badge);
+        });
+      }
+
+      // 3. Render Next Month Overlap to fill grid
+      const totalCells = startDayOfWeek + totalDays;
+      const nextDays = (7 - (totalCells % 7)) % 7;
+      for (let n = 1; n <= nextDays; n++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day other-month';
+        dayDiv.innerHTML = `<div class="day-num-row"><span class="day-num">${n}</span></div>`;
+        grid.appendChild(dayDiv);
+      }
+    }
+
+    function isDateInRange(targetDate, startDate, endDate) {
+      return targetDate >= startDate && targetDate <= endDate;
+    }
+
+    // Render Grid Cards View
+    function renderGridCards() {
+      const container = document.getElementById('grid-cards-container');
+      container.innerHTML = '';
+
+      if (books.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted);">등록된 독서 기록이 없습니다.</div>`;
+        return;
+      }
+
+      books.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.onclick = () => openDetailModal(b.id);
+
+        const statusClass = b.status === 'completed' ? 'status-completed' : (b.status === 'reading' ? 'status-reading' : 'status-wishlist');
+        const statusText = b.status === 'completed' ? '완독' : (b.status === 'reading' ? '읽는 중' : '읽고 싶은 책');
+        const starsText = '★'.repeat(b.rating || 5) + '☆'.repeat(5 - (b.rating || 5));
+
+        card.innerHTML = `
+          <div class="book-card-cover-wrapper">
+            <img src="${b.coverImage}" class="book-card-cover" alt="Cover" onerror="this.src='https://via.placeholder.com/108x155/e8e2d9/6e6a66?text=Book'">
+          </div>
+          <div class="book-card-body">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+              <span class="badge-status ${statusClass}">${statusText}</span>
+              <span style="color:var(--claude-orange); font-size:0.8rem;">${starsText}</span>
+            </div>
+            <div class="book-card-title serif-title">${escapeHtml(b.title)}</div>
+            <div class="book-card-author">${escapeHtml(b.author)}</div>
+            <div class="book-card-meta">
+              <span>📅 ${b.startDate} ~ ${b.endDate}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // View Switching
+    function switchView(viewName) {
+      currentView = viewName;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+
+      document.getElementById(`tab-${viewName}`).classList.add('active');
+      document.getElementById(`view-${viewName}`).classList.add('active');
+    }
+
+    // Modal Control
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function openAddModal() {
+      document.getElementById('modal-form-title').innerText = '📖 새 독서 기록 추가';
+      document.getElementById('edit-book-id').value = '';
+      document.getElementById('book-form').reset();
+      document.getElementById('book-preview-box').style.display = 'none';
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('input-start-date').value = todayStr;
+      document.getElementById('input-end-date').value = todayStr;
+      setRating(5);
+
+      openModal('add-modal');
+    }
+
+    function openAddModalWithDate(dateStr) {
+      openAddModal();
+      document.getElementById('input-start-date').value = dateStr;
+      document.getElementById('input-end-date').value = dateStr;
+    }
+
+    function setPresetUrl(url) {
+      document.getElementById('input-url').value = url;
+      fetchBookInfoFromInput();
+    }
+
+    // JINA AI FETCH PARSER ENGINE (ENHANCED PRECISE COVER LOGIC)
+    async function fetchBookInfoFromInput() {
+      const urlInput = document.getElementById('input-url').value.trim();
+      if (!urlInput) {
+        alert('교보문고 도서 상세페이지 URL을 입력해주세요.');
+        return;
+      }
+
+      const statusTxt = document.getElementById('preview-status-text');
+      const previewBox = document.getElementById('book-preview-box');
+      previewBox.style.display = 'flex';
+      statusTxt.innerText = '⏳ Jina AI (https://r.jina.ai/)로 정보 불러오는 중...';
+
+      try {
+        const bookInfo = await parseKyoboUrlViaJina(urlInput);
+        
+        document.getElementById('input-title').value = bookInfo.title;
+        document.getElementById('input-author').value = bookInfo.author;
+        document.getElementById('input-cover').value = bookInfo.coverImage;
+
+        document.getElementById('preview-img').src = bookInfo.coverImage;
+        document.getElementById('preview-title').innerText = bookInfo.title;
+        document.getElementById('preview-author').innerText = bookInfo.author;
+        statusTxt.innerText = '✓ 정확한 도서 정보를 성공적으로 파싱하였습니다!';
+      } catch (err) {
+        console.error(err);
+        statusTxt.innerText = '⚠️ 정보 파싱 실패. 직접 입력할 수 있습니다.';
+      }
+    }
+
+    async function parseKyoboUrlViaJina(targetUrl) {
+      let cleanUrl = targetUrl.trim();
+      if (!cleanUrl.startsWith('http')) cleanUrl = 'https://' + cleanUrl;
+
+      const jinaUrl = `https://r.jina.ai/${cleanUrl}`;
+      const res = await fetch(jinaUrl);
+      if (!res.ok) throw new Error('Jina reader request failed');
+      const text = await res.text();
+
+      return extractKyoboMetadataFromMarkdown(text, cleanUrl);
+    }
+
+    function extractKyoboMetadataFromMarkdown(text, url) {
+      const lines = text.split('\n');
+      let title = '';
+      let author = '';
+      let coverImage = '';
+
+      // 1. Title Extraction
+      const titleHeaderMatch = text.match(/^Title:\s*(.+?)(?:\s*-\s*교보문고|\s*$)/m);
+      if (titleHeaderMatch && titleHeaderMatch[1].trim()) {
+        title = titleHeaderMatch[1].trim();
+      } else {
+        const h1Match = text.match(/^#\s+(.+)$/m);
+        if (h1Match) title = h1Match[1].trim();
+      }
+      title = title.replace(/\s*-\s*교보문고$/, '').trim();
+
+      // 2. Author Extraction
+      const authorLinks = [];
+      const authorRegex = /\[([^\]]+)\]\(https:\/\/product\.kyobobook\.co\.kr\/detail\/S\d+#authorInfo\)/g;
+      let m;
+      while ((m = authorRegex.exec(text)) !== null) {
+        if (m[1] && !authorLinks.includes(m[1].trim())) {
+          authorLinks.push(m[1].trim());
+        }
+      }
+      if (authorLinks.length > 0) {
+        author = authorLinks.join(', ');
+      } else {
+        for (let line of lines) {
+          if (line.includes('저자(글)') || line.includes('지은이') || line.includes('저자:')) {
+            let clean = line.replace(/\[|\]|\(https?:\/\/[^\)]+\)/g, '').replace(/저자\(글\)|지은이|저자:/g, '').trim();
+            if (clean && clean.length < 80) {
+              author = clean;
+              break;
+            }
+          }
+        }
+      }
+
+      // 3. Exact Cover Image Extraction Hierarchy
+      // Strategy A: Table ISBN match (| ISBN | 978...)
+      const tableIsbnMatch = text.match(/\|\s*ISBN\s*\|\s*(\b978\d{10}\b)/i);
+      if (tableIsbnMatch) {
+        coverImage = `https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/${tableIsbnMatch[1]}.jpg`;
+      }
+
+      // Strategy B: Product ID match
+      if (!coverImage) {
+        const pidMatch = url.match(/S\d+/);
+        if (pidMatch) {
+          const pid = pidMatch[0];
+          const pidRegex = new RegExp(`!\\[[^\\]]*\\]\\((https:\\/\\/contents\\.kyobobook\\.co\\.kr\\/[^\\s\\)]+)\\)\\]\\([^\\)]*${pid}`, 'i');
+          const pidImgMatch = text.match(pidRegex);
+          if (pidImgMatch) {
+            coverImage = pidImgMatch[1];
+          }
+        }
+      }
+
+      // Strategy C: Image Alt Text containing "대표 이미지"
+      if (!coverImage) {
+        const repMatch = text.match(/!\[.*?대표 이미지\]\((https:\/\/contents\.kyobobook\.co\.kr\/[^\s\)]+)\)/i);
+        if (repMatch) {
+          coverImage = repMatch[1];
+        }
+      }
+
+      // Strategy D: Search after '기본정보' or '도서정보' section
+      if (!coverImage) {
+        const infoIdx = text.indexOf('기본정보');
+        if (infoIdx > -1) {
+          const subText = text.substring(infoIdx);
+          const cdnMatch = subText.match(/(https:\/\/contents\.kyobobook\.co\.kr\/sih\/fit-in\/[^\s\)\"\']+)/);
+          if (cdnMatch && !cdnMatch[1].includes('logo') && !cdnMatch[1].includes('common')) {
+            coverImage = cdnMatch[1];
+          }
+        }
+      }
+
+      // Strategy E: Any 978 ISBN found
+      if (!coverImage) {
+        const anyIsbnMatch = text.match(/(\b978\d{10}\b)/);
+        if (anyIsbnMatch) {
+          coverImage = `https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/${anyIsbnMatch[1]}.jpg`;
+        }
+      }
+
+      // Fallback
+      if (!coverImage) {
+        const fallbackMatch = text.match(/(https:\/\/contents\.kyobobook\.co\.kr\/sih\/fit-in\/[^\s\)\"\']+)/);
+        if (fallbackMatch && !fallbackMatch[1].includes('logo') && !fallbackMatch[1].includes('common')) {
+          coverImage = fallbackMatch[1];
+        }
+      }
+
+      return {
+        title: title || '제목 미상',
+        author: author || '저자 미상',
+        coverImage: coverImage || 'https://via.placeholder.com/300x420/e8e2d9/6e6a66?text=Book',
+        url: url
+      };
+    }
+
+    // Star Rating Control
+    function setRating(val) {
+      document.getElementById('input-rating').value = val;
+      const stars = document.querySelectorAll('#star-picker .star');
+      stars.forEach((s, idx) => {
+        if (idx < val) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+    }
+
+    // Form Save Handler
+    function saveBookForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-book-id').value || 'book-' + Date.now();
+      const title = document.getElementById('input-title').value.trim();
+      const author = document.getElementById('input-author').value.trim();
+      const coverImage = document.getElementById('input-cover').value || 'https://via.placeholder.com/300x420/e8e2d9/6e6a66?text=Book';
+      const startDate = document.getElementById('input-start-date').value;
+      const endDate = document.getElementById('input-end-date').value;
+      const status = document.getElementById('input-status').value;
+      const rating = Number(document.getElementById('input-rating').value);
+      const memo = document.getElementById('input-memo').value.trim();
+      const url = document.getElementById('input-url').value.trim();
+
+      const existingIdx = books.findIndex(b => b.id === id);
+      const bookData = { id, title, author, coverImage, startDate, endDate, status, rating, memo, url };
+
+      if (existingIdx >= 0) {
+        books[existingIdx] = bookData;
+      } else {
+        books.push(bookData);
+      }
+
+      saveStorageData();
+      renderApp();
+      closeModal('add-modal');
+    }
+
+    // Detail Modal Handler
+    function openDetailModal(id) {
+      const b = books.find(item => item.id === id);
+      if (!b) return;
+
+      currentDetailBookId = id;
+      document.getElementById('detail-img').src = b.coverImage;
+      document.getElementById('detail-title').innerText = b.title;
+      document.getElementById('detail-author').innerText = b.author;
+      document.getElementById('detail-period').innerText = `${b.startDate} ~ ${b.endDate}`;
+
+      const d1 = new Date(b.startDate);
+      const d2 = new Date(b.endDate);
+      const days = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1);
+      document.getElementById('detail-days').innerText = days;
+
+      document.getElementById('detail-stars').innerText = '★'.repeat(b.rating || 5) + '☆'.repeat(5 - (b.rating || 5));
+      document.getElementById('detail-memo').innerText = b.memo || '작성된 메모가 없습니다.';
+
+      const linkBtn = document.getElementById('detail-link-btn');
+      if (b.url) {
+        linkBtn.href = b.url;
+        linkBtn.style.display = 'inline-flex';
+      } else {
+        linkBtn.style.display = 'none';
+      }
+
+      openModal('detail-modal');
+    }
+
+    function deleteCurrentBook() {
+      if (!currentDetailBookId) return;
+      if (confirm('정말로 이 독서 기록을 삭제하시겠습니까?')) {
+        books = books.filter(b => b.id !== currentDetailBookId);
+        saveStorageData();
+        renderApp();
+        closeModal('detail-modal');
+      }
+    }
+
+    function editCurrentBook() {
+      const b = books.find(item => item.id === currentDetailBookId);
+      if (!b) return;
+
+      closeModal('detail-modal');
+      openAddModal();
+
+      document.getElementById('modal-form-title').innerText = '✏️ 독서 기록 수정';
+      document.getElementById('edit-book-id').value = b.id;
+      document.getElementById('input-url').value = b.url || '';
+      document.getElementById('input-title').value = b.title;
+      document.getElementById('input-author').value = b.author;
+      document.getElementById('input-cover').value = b.coverImage;
+      document.getElementById('input-start-date').value = b.startDate;
+      document.getElementById('input-end-date').value = b.endDate;
+      document.getElementById('input-status').value = b.status;
+      document.getElementById('input-memo').value = b.memo || '';
+      setRating(b.rating || 5);
+    }
+
+    // Backup & Restore
+    function exportData() {
+      const jsonStr = JSON.stringify(books, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kyobo_claude_reading_log_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+    }
+
+    // 20 BOOK AUTO TEST SUITE
+    function openTestModal() {
+      document.querySelector('.test-drawer').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function runAutoTest20() {
+      const btn = document.getElementById('start-test-btn');
+      btn.disabled = true;
+      btn.innerText = '⏳ 20개 도서 테스트 진행 중...';
+
+      const tbody = document.getElementById('test-results-body');
+      tbody.innerHTML = '';
+      const pBar = document.getElementById('test-progress-bar');
+      const pFill = document.getElementById('test-progress-fill');
+      pBar.style.display = 'block';
+
+      let successCount = 0;
+
+      for (let i = 0; i < test20BookUrls.length; i++) {
+        const url = test20BookUrls[i];
+        pFill.style.width = `${((i + 1) / test20BookUrls.length) * 100}%`;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${i + 1}</td>
+          <td style="font-size:0.75rem; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis;">${url}</td>
+          <td id="test-title-${i}">불러오는 중...</td>
+          <td id="test-author-${i}">-</td>
+          <td id="test-img-${i}">-</td>
+          <td id="test-status-${i}">⏳ 진행 중</td>
+        `;
+        tbody.appendChild(row);
+
+        try {
+          const info = await parseKyoboUrlViaJina(url);
+          document.getElementById(`test-title-${i}`).innerText = info.title;
+          document.getElementById(`test-author-${i}`).innerText = info.author;
+          document.getElementById(`test-img-${i}`).innerHTML = `<img src="${info.coverImage}" style="width:30px; height:40px; object-fit:cover; border-radius:3px;">`;
+          document.getElementById(`test-status-${i}`).innerHTML = `<span style="color:#2D7A52; font-weight:bold;">✓ 성공</span>`;
+          successCount++;
+        } catch (e) {
+          document.getElementById(`test-status-${i}`).innerHTML = `<span style="color:#DE350B; font-weight:bold;">✕ 실패</span>`;
+        }
+      }
+
+      btn.disabled = false;
+      btn.innerText = `⚡ 테스트 완료 (${successCount}/${test20BookUrls.length} 성공)`;
+    }
+
+    // Helper
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>
