@@ -240,8 +240,46 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
+
+  /* Dynamic Calendar Badge */
+  .entry-date-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dynamic-calendar {
+    width: 34px;
+    height: 36px;
+    background: #fff;
+    border: 1.5px solid #e3dcd4;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(91,70,54,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .dynamic-calendar .cal-top {
+    background: #b3714f;
+    color: #ffffff;
+    font-size: 8px;
+    font-weight: 700;
+    width: 100%;
+    text-align: center;
+    padding: 2px 0 1px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+  }
+  .dynamic-calendar .cal-body {
+    font-size: 14px;
+    font-weight: 800;
+    color: #4a3c31;
+    line-height: 20px;
+  }
+
   .entry-date {
     font-size: 12px;
     color: #a99a8c;
@@ -438,18 +476,23 @@ async function fetchEntries() {
 
     if (error) throw error;
 
-    entries = (data || []).map(row => ({
-      id: row.id,
-      date: new Date(row.created_at || Date.now()).toLocaleString('ko-KR', { 
-        year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-      }),
-      situation: row.situation,
-      thought: row.thought,
-      intensity: row.intensity,
-      action: row.action,
-      confirmed: row.confirmed,
-      result: row.result
-    }));
+    entries = (data || []).map(row => {
+      const dt = row.created_at ? new Date(row.created_at) : new Date();
+      return {
+        id: row.id,
+        monthNum: dt.getMonth() + 1,
+        dayNum: dt.getDate(),
+        date: dt.toLocaleString('ko-KR', { 
+          year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+        }),
+        situation: row.situation,
+        thought: row.thought,
+        intensity: row.intensity,
+        action: row.action,
+        confirmed: row.confirmed,
+        result: row.result
+      };
+    });
     renderEntries();
   } catch (err) {
     console.error('Fetch Error:', err);
@@ -465,7 +508,13 @@ function renderEntries() {
   listEl.innerHTML = entries.map(e => `
     <div class="entry">
       <div class="entry-header">
-        <span class="entry-date">📅 ${e.date}</span>
+        <div class="entry-date-container">
+          <div class="dynamic-calendar">
+            <div class="cal-top">${e.monthNum}월</div>
+            <div class="cal-body">${e.dayNum}</div>
+          </div>
+          <span class="entry-date">${e.date}</span>
+        </div>
         <div>
           <span class="intensity-badge">강도 ${e.intensity}</span>
           <button class="delete-btn" onclick="deleteEntry(${e.id})">삭제</button>
